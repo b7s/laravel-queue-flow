@@ -16,7 +16,7 @@ test('exports catalog snapshot using helper', function (): void {
         ['id' => 3, 'name' => 'Product C', 'price' => 199.99],
     ];
 
-    queue_flow(static function () use ($records, $outputFile): void {
+    qflow(static function () use ($records, $outputFile): void {
         $export = [
             'total_records' => count($records),
             'records' => $records,

@@ -11,7 +11,7 @@ test('configures complex job with manual dispatch', function (): void {
     $outputFile = tempnam(sys_get_temp_dir(), 'parallite_cplx_feature_test_') . '.json';
     register_shutdown_function(static fn (): bool => @unlink($outputFile));
 
-    $queue = queue_flow(static function () use ($outputFile): void {
+    $queue = qflow(static function () use ($outputFile): void {
         $result = [
             'status' => 'completed',
             'priority' => 'high',

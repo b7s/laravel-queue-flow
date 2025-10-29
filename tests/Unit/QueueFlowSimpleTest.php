@@ -62,7 +62,7 @@ test('helper auto-dispatches by default', function () {
     $testFile = tempnam(sys_get_temp_dir(), 'parallite_queue_unit_test_') . '.txt';
     register_shutdown_function(fn() => @unlink($testFile));
 
-    queue_flow(function () use ($testFile): void {
+    qflow(function () use ($testFile): void {
         file_put_contents($testFile, 'executed');
     });
 
@@ -74,7 +74,7 @@ test('helper can disable auto dispatch', function () {
     $testFile = tempnam(sys_get_temp_dir(), 'parallite_queue_unit_test_') . '.txt';
     register_shutdown_function(fn() => @unlink($testFile));
 
-    $queue = queue_flow(function () use ($testFile): void {
+    $queue = qflow(function () use ($testFile): void {
         file_put_contents($testFile, 'executed');
     }, autoDispatch: false);
 
@@ -102,7 +102,7 @@ test('add accepts multiple closures and reuses configuration', function (): void
 
     // Verify return type is correct
     expect($dispatches)
-        ->toBeArray()
+        ->toBeCollection()
         ->toHaveCount(3)
         ->and($dispatches[0])->toBeInstanceOf(PendingDispatch::class)
         ->and($dispatches[1])->toBeInstanceOf(PendingDispatch::class)

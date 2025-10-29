@@ -10,7 +10,7 @@ test('processes multiple jobs sequentially', function (): void {
     $outputFile = tempnam(sys_get_temp_dir(), 'parallite_seq_feature_test_') . '.json';
     register_shutdown_function(static fn (): bool => @unlink($outputFile));
 
-    queue_flow([
+    qflow([
         static function () use ($outputFile): void {
             file_put_contents($outputFile, json_encode(['jobs' => ['job-1']], JSON_PRETTY_PRINT));
         },

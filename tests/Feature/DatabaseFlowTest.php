@@ -65,7 +65,7 @@ test('database flow - performs CRUD operations on queue audit records', function
         
         $jobName = uniqid('daily-report-');
         
-        queue_flow(function () use ($jobName): void {
+        qflow(function () use ($jobName): void {
             DB::table('queue_audit_logs')->insert([
                 'job_name' => $jobName,
                 'status' => 'pending',
@@ -78,7 +78,7 @@ test('database flow - performs CRUD operations on queue audit records', function
         expect($record)->not->toBeNull()
             ->and($record->status)->toBe('pending');
 
-        queue_flow(function () use ($jobName): void {
+        qflow(function () use ($jobName): void {
             DB::table('queue_audit_logs')
                 ->where('job_name', $jobName)
                 ->update([
@@ -90,7 +90,7 @@ test('database flow - performs CRUD operations on queue audit records', function
         $updated = DB::table('queue_audit_logs')->where('job_name', $jobName)->first();
         expect($updated->status)->toBe('processing');
 
-        queue_flow(function () use ($jobName): void {
+        qflow(function () use ($jobName): void {
             DB::table('queue_audit_logs')
                 ->where('job_name', $jobName)
                 ->delete();

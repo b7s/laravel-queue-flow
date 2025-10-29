@@ -25,7 +25,7 @@ class TaskController extends Controller
     public function processTask(): void
     {
         // Dispatch automatically
-        queue_flow(fn () => $this->heavyComputation());
+        qflow(fn () => $this->heavyComputation());
     }
 
     private function heavyComputation(): void
@@ -41,7 +41,7 @@ class TaskController extends Controller
 public function scheduleTask(): void
 {
     // Dispatch manually after configuration
-    queue_flow((fn () => $this->sendReminder(), false))
+    qflow((fn () => $this->sendReminder(), false))
         ->delay(now()->addHours(24))
         ->dispatch();
 }

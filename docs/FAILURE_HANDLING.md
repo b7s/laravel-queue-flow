@@ -24,7 +24,7 @@ $queue
 ## Using the Helper Function
 
 ```php
-queue_flow(fn () => $this->sendEmail($user), autoDispatch: false)
+qflow(fn () => $this->sendEmail($user), autoDispatch: false)
     ->onQueue('emails')
     ->onFailure(function (\Throwable $exception) use ($user) {
         // Notify admin about failed email
@@ -39,7 +39,7 @@ queue_flow(fn () => $this->sendEmail($user), autoDispatch: false)
 ### 1. Logging Errors
 
 ```php
-queue_flow(fn () => $this->processPayment($payment), autoDispatch: false)
+qflow(fn () => $this->processPayment($payment), autoDispatch: false)
     ->onFailure(function (\Throwable $exception) use ($payment) {
         \Log::channel('payments')->error('Payment processing failed', [
             'payment_id' => $payment->id,
@@ -56,7 +56,7 @@ queue_flow(fn () => $this->processPayment($payment), autoDispatch: false)
 ### 2. Updating Database Records
 
 ```php
-queue_flow(fn () => $this->syncWithExternalApi($record), autoDispatch: false)
+qflow(fn () => $this->syncWithExternalApi($record), autoDispatch: false)
     ->onFailure(function (\Throwable $exception) use ($record) {
         $record->update([
             'sync_status' => 'failed',
@@ -70,7 +70,7 @@ queue_flow(fn () => $this->syncWithExternalApi($record), autoDispatch: false)
 ### 3. Sending Notifications
 
 ```php
-queue_flow(fn () => $this->generateReport($report), autoDispatch: false)
+qflow(fn () => $this->generateReport($report), autoDispatch: false)
     ->onFailure(function (\Throwable $exception) use ($report) {
         $report->user->notify(
             new ReportGenerationFailedNotification($report, $exception)
@@ -82,7 +82,7 @@ queue_flow(fn () => $this->generateReport($report), autoDispatch: false)
 ### 4. Triggering Compensating Actions
 
 ```php
-queue_flow(fn () => $this->reserveInventory($order), autoDispatch: false)
+qflow(fn () => $this->reserveInventory($order), autoDispatch: false)
     ->onFailure(function (\Throwable $exception) use ($order) {
         // Release any partial reservations
         $this->releaseInventoryReservations($order);
@@ -99,11 +99,11 @@ queue_flow(fn () => $this->reserveInventory($order), autoDispatch: false)
 ### 5. Retrying with Different Strategy
 
 ```php
-queue_flow(fn () => $this->processLargeFile($file), autoDispatch: false)
+qflow(fn () => $this->processLargeFile($file), autoDispatch: false)
     ->onFailure(function (\Throwable $exception) use ($file) {
         // If it failed due to memory, try with chunked processing
         if ($exception instanceof \OutOfMemoryError) {
-            queue_flow(fn () => $this->processFileInChunks($file))
+            qflow(fn () => $this->processFileInChunks($file))
                 ->onQueue('low-priority')
                 ->dispatch();
         }
@@ -116,7 +116,7 @@ queue_flow(fn () => $this->processLargeFile($file), autoDispatch: false)
 ### Unique Jobs
 
 ```php
-queue_flow(fn () => $this->syncUserData($user), autoDispatch: false)
+qflow(fn () => $this->syncUserData($user), autoDispatch: false)
     ->shouldBeUnique(3600)
     ->onFailure(function (\Throwable $exception) use ($user) {
         \Log::warning('User sync failed', [
@@ -130,7 +130,7 @@ queue_flow(fn () => $this->syncUserData($user), autoDispatch: false)
 ### Encrypted Jobs
 
 ```php
-queue_flow(fn () => $this->processSensitiveData($data), autoDispatch: false)
+qflow(fn () => $this->processSensitiveData($data), autoDispatch: false)
     ->shouldBeEncrypted()
     ->onFailure(function (\Throwable $exception) {
         // Log without exposing sensitive data
@@ -145,7 +145,7 @@ queue_flow(fn () => $this->processSensitiveData($data), autoDispatch: false)
 ### Rate Limited Jobs
 
 ```php
-queue_flow(fn () => $this->callExternalApi($endpoint), autoDispatch: false)
+qflow(fn () => $this->callExternalApi($endpoint), autoDispatch: false)
     ->rateLimited('api-calls')
     ->onFailure(function (\Throwable $exception) use ($endpoint) {
         if ($exception instanceof \Illuminate\Http\Client\RequestException) {
@@ -258,7 +258,7 @@ test('failure callback is executed when job fails', function () {
     
     $errorLogged = false;
     
-    queue_flow(function () {
+    qflow(function () {
         throw new \RuntimeException('Test failure');
     }, autoDispatch: false)
         ->onFailure(function () use (&$errorLogged) {

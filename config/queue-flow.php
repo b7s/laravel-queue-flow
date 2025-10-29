@@ -35,7 +35,7 @@ return [
     | Auto Dispatch
     |--------------------------------------------------------------------------
     |
-    | When using queue_flow(), this defines whether the job should be dispatched
+    | When using qflow(), this defines whether the job should be dispatched
     | automatically when the object is used in a context that expects a value.
     |
     | Be careful with this option, if set to true, the job will be dispatched immediately
@@ -46,4 +46,15 @@ return [
     */
     'auto_dispatch' => env('QUEUE_FLOW_AUTO_DISPATCH', false),
     'auto_dispatch_on_queue_flow_helper' => env('QUEUE_FLOW_AUTO_DISPATCH_ON_HELPER', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dispatch Multiple Return As Collection
+    |--------------------------------------------------------------------------
+    |
+    | When using dispatch() with multiple jobs, this defines whether the return
+    | value should be a collection or an array.
+    |
+    */
+    'dispatch_return_of_multiple_jobs_as_collection' => env('QUEUE_FLOW_DISPATCH_RETURN_OF_MULTIPLE_JOBS_AS_COLLECTION', true),
 ];

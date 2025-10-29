@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use B7s\QueueFlow\Services\QueueConfigurationService;
 use B7s\QueueFlow\Services\JobDispatcherService;
 use Illuminate\Foundation\Bus\PendingDispatch;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use function collect;
 
@@ -29,6 +30,11 @@ class Queue
         $this->autoDispatchEnabled = config('queue-flow.auto_dispatch', false);
     }
 
+    /**
+     * Make a new queue instance
+     *
+     * @return Queue
+     */
     public static function make(): self
     {
         return App::make(self::class);
@@ -52,6 +58,12 @@ class Queue
         return $this;
     }
 
+    /**
+     * Enable or disable auto dispatch
+     *
+     * @param bool $enabled
+     * @return Queue
+     */
     public function autoDispatch(bool $enabled = true): self
     {
         $this->autoDispatchEnabled = $enabled;
@@ -59,7 +71,10 @@ class Queue
     }
 
     /**
-     * Set the queue name
+     * Set the queue name to be used
+     *
+     * @param string $queue
+     * @return Queue
      */
     public function onQueue(string $queue): self
     {
@@ -68,7 +83,10 @@ class Queue
     }
 
     /**
-     * Set the connection name
+     * Set the connection name to be used
+     *
+     * @param string $connection
+     * @return Queue
      */
     public function onConnection(string $connection): self
     {
@@ -78,6 +96,9 @@ class Queue
 
     /**
      * Set delay for the job
+     *
+     * @param DateTimeInterface|DateInterval|int $delay
+     * @return Queue
      */
     public function delay(DateTimeInterface|DateInterval|int $delay): self
     {
@@ -87,6 +108,8 @@ class Queue
 
     /**
      * Prevent relations from being serialized
+     *
+     * @return Queue
      */
     public function withoutRelations(): self
     {
@@ -96,6 +119,9 @@ class Queue
 
     /**
      * Make the job unique
+     *
+     * @param int|null $uniqueFor
+     * @return Queue
      */
     public function shouldBeUnique(?int $uniqueFor = null): self
     {
@@ -106,6 +132,8 @@ class Queue
 
     /**
      * Make the job unique until processing
+     *
+     * @return Queue
      */
     public function shouldBeUniqueUntilProcessing(): self
     {
@@ -115,6 +143,8 @@ class Queue
 
     /**
      * Encrypt the job payload
+     *
+     * @return Queue
      */
     public function shouldBeEncrypted(): self
     {
@@ -124,6 +154,9 @@ class Queue
 
     /**
      * Apply rate limiting to the job
+     *
+     * @param string $limiterName
+     * @return Queue
      */
     public function rateLimited(string $limiterName = 'default'): self
     {
@@ -133,6 +166,9 @@ class Queue
 
     /**
      * Set a callback to be executed when the job fails
+     *
+     * @param Closure $callback
+     * @return Queue
      */
     public function onFailure(Closure $callback): self
     {
@@ -142,10 +178,10 @@ class Queue
 
     /**
      * Dispatch the job to the queue
-     *
-     * @return PendingDispatch|array<int, PendingDispatch>
+     * 
+     * @return PendingDispatch|array<int, PendingDispatch>|Collection<int, PendingDispatch>  Returns a PendingDispatch instance if only one job was dispatched, an Collection of PendingDispatch instances if multiple jobs were dispatched, or a array if 'config.dispatch_return_of_multiple_jobs_as_collection' is set to false.
      */
-    public function dispatch(): PendingDispatch|array
+    public function dispatch(): PendingDispatch|Collection|array
     {
         if ($this->pendingCallbacks === []) {
             throw new \RuntimeException('No callback has been added to the queue. Use add() method first.');
@@ -160,7 +196,11 @@ class Queue
         // Reset state after dispatch
         $this->reset();
 
-        return count($dispatches) === 1 ? $dispatches[0] : $dispatches;
+        if (count($dispatches) === 1) {
+            return $dispatches[0];
+        }
+
+        return config('queue-flow.dispatch_return_of_multiple_jobs_as_collection', true) ? collect($dispatches) : $dispatches;
     }
 
     /**

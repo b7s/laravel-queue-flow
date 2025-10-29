@@ -12,7 +12,7 @@ test('helper with autoDispatch false allows method chaining before dispatch', fu
     $outputFile = tempnam(sys_get_temp_dir(), 'parallite_chain_test_') . '.json';
     register_shutdown_function(static fn (): bool => @unlink($outputFile));
 
-    $queue = queue_flow(static function () use ($outputFile): void {
+    $queue = qflow(static function () use ($outputFile): void {
         file_put_contents($outputFile, json_encode([
             'executed' => true,
             'timestamp' => now()->toIso8601String(),
@@ -44,7 +44,7 @@ test('helper with autoDispatch true executes immediately without chaining', func
     $outputFile = tempnam(sys_get_temp_dir(), 'parallite_chain_test_') . '.json';
     register_shutdown_function(static fn (): bool => @unlink($outputFile));
 
-    $queue = queue_flow(static function () use ($outputFile): void {
+    $queue = qflow(static function () use ($outputFile): void {
         file_put_contents($outputFile, json_encode([
             'executed' => true,
             'auto_dispatched' => true,
@@ -63,7 +63,7 @@ test('helper default behavior auto-dispatches immediately', function (): void {
     $outputFile = tempnam(sys_get_temp_dir(), 'parallite_chain_test_') . '.json';
     register_shutdown_function(static fn (): bool => @unlink($outputFile));
 
-    queue_flow(static function () use ($outputFile): void {
+    qflow(static function () use ($outputFile): void {
         file_put_contents($outputFile, json_encode([
             'executed' => true,
             'default_behavior' => true,
@@ -80,7 +80,7 @@ test('helper default behavior auto-dispatches immediately', function (): void {
 test('helper with autoDispatch false and Queue fake verifies job configuration', function (): void {
     LaravelQueueFacade::fake();
 
-    $queue = queue_flow(static fn (): string => 'test-job', autoDispatch: false)
+    $queue = qflow(static fn (): string => 'test-job', autoDispatch: false)
         ->delay(60)
         ->onQueue('priority-queue')
         ->onConnection('redis')
@@ -96,7 +96,7 @@ test('helper with autoDispatch false and Queue fake verifies job configuration',
 });
 
 test('helper returns Queue instance for further manipulation', function (): void {
-    $queue = queue_flow(static fn (): string => 'test', autoDispatch: false);
+    $queue = qflow(static fn (): string => 'test', autoDispatch: false);
 
     expect($queue)->toBeInstanceOf(Queue::class);
     expect(method_exists($queue, 'delay'))->toBeTrue();
@@ -118,7 +118,7 @@ test('helper with complex chaining configuration executes correctly', function (
         'priority' => 'high',
     ];
 
-    queue_flow(static function () use ($outputFile, $data): void {
+    qflow(static function () use ($outputFile, $data): void {
         file_put_contents($outputFile, json_encode([
             'data' => $data,
             'processed' => true,

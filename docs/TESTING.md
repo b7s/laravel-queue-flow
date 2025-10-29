@@ -2,7 +2,7 @@
 
 ## Overview
 
-🧪 Let's teste! The package includes a comprehensive test suite that covers all aspects of QueueFlow Queue's functionality, including the behavior of the `queue_flow()` helper with different `autoDispatch` configurations.
+🧪 Let's teste! The package includes a comprehensive test suite that covers all aspects of QueueFlow Queue's functionality, including the behavior of the `qflow()` helper with different `autoDispatch` configurations.
 
 ## Test Structure
 
@@ -12,7 +12,7 @@
 Basic tests for the `Queue` class:
 - Instantiation
 - Adding callbacks to the queue
-- Behavior of the `queue_flow()` helper
+- Behavior of the `qflow()` helper
 
 #### `tests/Unit/HelperChainConfigurationTest.php`
 Specific tests for the helper's chaining behavior:
@@ -21,7 +21,7 @@ Specific tests for the helper's chaining behavior:
    - Allows chained configurations before `dispatch()`
    - Doesn't execute the job until `dispatch()` is called
    ```php
-   queue_flow(fn() => doSomething(), autoDispatch: false)
+   qflow(fn() => doSomething(), autoDispatch: false)
        ->delay(60)
        ->onQueue('high')
        ->dispatch();
@@ -30,14 +30,14 @@ Specific tests for the helper's chaining behavior:
 2. **Immediate Execution with `autoDispatch: true`**
    - Executes the job immediately without allowing chaining
    ```php
-   queue_flow(fn() => doSomething(), autoDispatch: true);
+   qflow(fn() => doSomething(), autoDispatch: true);
    ```
 
 3. **Default Behavior**
    - By default, `autoDispatch` is `true`
    ```php
    // Executes immediately
-   queue_flow(fn() => doSomething());
+   qflow(fn() => doSomething());
    ```
 
 4. **Queue Configuration with Fake**

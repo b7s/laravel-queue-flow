@@ -51,17 +51,17 @@ class TestQueueController
     public function doSomething(): void
     {
         // Dispatch automatically One item
-        queue_flow(fn () => $this->doOtherThing());
+        qflow(fn () => $this->doOtherThing());
 
         // Dispatch automatically multiple items with array of closures
-        queue_flow([
+        qflow([
             fn () => $this->doOtherThing(),
             fn () => $this->doMoreThings(),
             // ...
         ]);
 
         // Dispatch manually (set autoDispatch to false) after configuration
-        queue_flow(fn () => $this->doOtherThing(), autoDispatch: false)
+        qflow(fn () => $this->doOtherThing(), autoDispatch: false)
             ->onQueue('high-priority')
             ->shouldBeUnique()
             ->shouldBeEncrypted()
@@ -70,6 +70,14 @@ class TestQueueController
                 // Your logic here
             })
             ->dispatch();
+
+        // Dispatch multiple items with array of closures and apply middleware to each dispatch
+        qflow([
+           fn () => $this->callExternalApi(),
+           fn () => $this->callExternalApi(),
+        ])
+        // Apply middleware to each dispatch
+        ->each(fn ($dispatch) => $dispatch->through([new \Illuminate\Queue\Middleware\RateLimited('api-calls')]));
     }
 
     private function doOtherThing(): void
@@ -90,6 +98,8 @@ The queue will automatically dispatch when the object is destroyed if a callback
 
 > Know more about the `dispatch()` return value [here](docs/DISPATCH_RETURN.md).
 
+Using the `Queue` instance directly:
+
 ```php
 <?php
 
@@ -106,8 +116,8 @@ class TestQueueController
 
     public function doSomething(): void
     {
-        $this->myQueue->add(fn () => $this->doOtherThing());
         // Will auto-dispatch when $this->myQueue goes out of scope
+        $this->myQueue->add(fn () => $this->doOtherThing());
     }
 }
 ```
@@ -145,22 +155,35 @@ class ReportService
 }
 ```
 
+You can pass an array of closures to `add()` to add multiple jobs:
+
+```php
+$queue = new Queue();
+
+$queue
+    ->add([
+        fn () => doSomething(),
+        fn () => doSomethingElse(),
+    ])
+    ->dispatch();
+```
+
 ### Helper Function
 
-Use the global `queue_flow()` helper to configure jobs inline.
+Use the global `qflow()` helper to configure jobs inline.
 
 > Jobs dispatch automatically by default
 > 
 > You can change this behavior in the config file `auto_dispatch_on_queue_flow_helper` or by setting the .env variable `QUEUE_FLOW_AUTO_DISPATCH_ON_HELPER` to `false`:
 
 ```php
-queue_flow(fn () => $this->sendEmail());
+qflow(fn () => $this->sendEmail());
 ```
 
 Disable auto-dispatch when you need more control:
 
 ```php
-$queue = queue_flow(fn () => $this->sendEmail(), autoDispatch: false);
+$queue = qflow(fn () => $this->sendEmail(), autoDispatch: false);
 
 // Configure other options before dispatching manually
 $queue
@@ -314,7 +337,7 @@ return [
 ```
 
 - **`auto_dispatch`** – controls whether the fluent `Queue` instance should dispatch automatically when destructed (default: `false`).
-- **`auto_dispatch_on_queue_flow_helper`** – controls the default behavior for the `queue_flow()` helper when `autoDispatch` is not passed explicitly (default: `true`).
+- **`auto_dispatch_on_queue_flow_helper`** – controls the default behavior for the `qflow()` helper when `autoDispatch` is not passed explicitly (default: `true`).
 
 ## How It Works
 
@@ -376,10 +399,10 @@ composer test-coverage
 2. **Helper Function**
    ```php
    // With auto-dispatch (default)
-   queue_flow(fn() => doSomething());
+   qflow(fn() => doSomething());
    
    // With method chaining (autoDispatch: false)
-   queue_flow(fn() => doSomething(), autoDispatch: false)
+   qflow(fn() => doSomething(), autoDispatch: false)
        ->delay(60)
        ->onQueue('high')
        ->dispatch();

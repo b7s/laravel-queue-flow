@@ -34,7 +34,7 @@ test('failure callback is executed when job fails', function (): void {
     LaravelQueueFacade::fake();
 
     try {
-        queue_flow(function (): void {
+        qflow(function (): void {
             throw new \RuntimeException('Simulated failure');
         }, autoDispatch: false)
             ->onFailure(function (\Throwable $exception) use ($outputFile): void {
@@ -59,7 +59,7 @@ test('failure callback works with unique jobs', function (): void {
     LaravelQueueFacade::fake();
 
     try {
-        queue_flow(function (): void {
+        qflow(function (): void {
             throw new \Exception('Unique job failed');
         }, autoDispatch: false)
             ->shouldBeUnique(3600)
@@ -84,7 +84,7 @@ test('failure callback works with encrypted jobs', function (): void {
     LaravelQueueFacade::fake();
 
     try {
-        queue_flow(function (): void {
+        qflow(function (): void {
             throw new \Exception('Encrypted job failed');
         }, autoDispatch: false)
             ->shouldBeEncrypted()
@@ -108,7 +108,7 @@ test('failure callback can log to database or external service', function (): vo
     LaravelQueueFacade::fake();
 
     try {
-        queue_flow(function (): void {
+        qflow(function (): void {
             throw new \RuntimeException('Critical error');
         }, autoDispatch: false)
             ->onQueue('critical')
@@ -136,7 +136,7 @@ test('failure callback receives exception with full context', function (): void 
     LaravelQueueFacade::fake();
 
     try {
-        queue_flow(function (): void {
+        qflow(function (): void {
             throw new \InvalidArgumentException('Invalid data provided', 422);
         }, autoDispatch: false)
             ->onFailure(function (\Throwable $exception) use (&$capturedContext): void {
