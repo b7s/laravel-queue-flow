@@ -4,7 +4,7 @@ This guide will walk you through installing and configuring QueueFlow Laravel Qu
 
 ## Requirements
 
-- PHP 8.3 or higher
+- PHP 8.2 or higher
 - Laravel 11.0 or higher
 - Composer
 

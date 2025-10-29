@@ -29,5 +29,5 @@ All notable changes to `queue-flow` will be documented in this file.
 - **EncryptedQueueFlowJob**: Job class implementing ShouldBeEncrypted
 
 ### Requirements
-- PHP 8.3+
+- PHP 8.2+
 - Laravel 11.0+

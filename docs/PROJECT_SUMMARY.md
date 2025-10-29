@@ -104,7 +104,7 @@ All jobs extend `QueueFlowJob` and implement specific Laravel queue interfaces:
 10. **Auto-dispatch**: Automatic dispatch on object destruction
 11. **Service Provider**: Laravel auto-discovery support
 12. **Configuration**: Customizable via config file
-13. **Type Safety**: Full PHP 8.3+ type hints
+13. **Type Safety**: Full PHP 8.2+ type hints
 
 ### 📋 Future Enhancements
 
@@ -152,7 +152,7 @@ class UserController
 ## Technical Specifications
 
 ### Requirements
-- PHP 8.3+
+- PHP 8.2+
 - Laravel 11.0+
 - Composer
 
@@ -183,7 +183,7 @@ composer test-coverage
 
 ### CI/CD
 - GitHub Actions workflow configured
-- Tests run on PHP 8.3 and 8.3
+- Tests run on PHP 8.2 and 8.2
 - Tests run on Laravel 11.x
 
 ## Documentation
@@ -231,7 +231,7 @@ composer test-coverage
 ## Compatibility
 
 - **Laravel**: 11.0+
-- **PHP**: 8.3, 8.3
+- **PHP**: 8.2, 8.2
 - **Queue Drivers**: All Laravel queue drivers supported
   - Sync
   - Database

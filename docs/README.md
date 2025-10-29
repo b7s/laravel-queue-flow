@@ -59,7 +59,7 @@ docs/
 - ✅ **Unique Jobs** - Prevent duplicates
 - ✅ **Encryption** - Secure sensitive data
 - ✅ **Rate Limiting** - Control execution rate
-- ✅ **Type Safe** - Full PHP 8.3+ type hints
+- ✅ **Type Safe** - Full PHP 8.2+ type hints
 - ✅ **Laravel 11+** - Compatible with latest Laravel
 
 ## Support

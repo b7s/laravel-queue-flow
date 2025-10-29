@@ -25,7 +25,7 @@ Thank you for considering contributing to QueueFlow Laravel Queue! This document
 ## Coding Standards
 
 - Follow PSR-12 coding standards
-- Use PHP 8.3+ features (typed properties, match expressions, etc.)
+- Use PHP 8.2+ features (typed properties, match expressions, etc.)
 - Use strict typing: `declare(strict_types=1);`
 - Add type hints to all parameters and return types
 - Write descriptive variable and method names

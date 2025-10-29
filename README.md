@@ -9,7 +9,7 @@ A Laravel Queue wrapper system, simplifying queue management without creating se
 ## Features
 
 - 🚀 **Simple API**: No need to create separate Job classes
-- 🔒 **Type-safe**: Full PHP 8.3+ type hints
+- 🔒 **Type-safe**: Full PHP 8.2+ type hints
 - 🎯 **Fluent Interface**: Chain methods for easy configuration
 - 🔐 **Encryption Support**: Built-in job encryption
 - 🔄 **Unique Jobs**: Prevent duplicate job execution
@@ -18,7 +18,7 @@ A Laravel Queue wrapper system, simplifying queue management without creating se
 
 ## Requirements
 
-- PHP 8.3 or higher
+- PHP 8.2 or higher
 - Laravel 11.0 or higher
 
 ## Installation
