@@ -4,7 +4,7 @@
 
 # Laravel Queue Flow
 
-A Laravel Queue wrapper system, simplifying queue management without creating separate Job classes.
+A [Laravel Queue](https://laravel.com/docs/12.x/queues) wrapper system, simplifying queue management without creating separate Job classes.
 
 ## Features
 
@@ -36,6 +36,8 @@ The service provider will be automatically registered.
 ```bash
 php artisan vendor:publish --tag=queue-flow-config
 ```
+
+This package has some configurations, but it doesn't override the default Laravel settings, which you can modify in `config/queue.php`.
 
 ## Usage
 
@@ -306,6 +308,8 @@ $this->myQueue
 
 ### Chaining Multiple Options
 
+The methods follow the same pattern and the same naming convention as Laravel (see [Laravel Documentation](https://laravel.com/docs/12.x/queues)).
+
 ```php
 $this->myQueue
     ->add(fn () => $this->complexTask())
@@ -324,7 +328,7 @@ The configuration file allows you to set defaults:
 
 ```php
 return [
-    'unique_for' => env('PARALLITE_UNIQUE_FOR', 3600),
+    'unique_for' => env('QUEUE_FLOW_UNIQUE_FOR', 3600),
     'rate_limiters' => [
         'default' => [
             'limit' => 60,
@@ -333,11 +337,13 @@ return [
     ],
     'auto_dispatch' => env('QUEUE_FLOW_AUTO_DISPATCH', false),
     'auto_dispatch_on_queue_flow_helper' => env('QUEUE_FLOW_AUTO_DISPATCH_ON_HELPER', true),
+    'dispatch_return_of_multiple_jobs_as_collection' => env('QUEUE_FLOW_DISPATCH_RETURN_OF_MULTIPLE_JOBS_AS_COLLECTION', true),
 ];
 ```
 
 - **`auto_dispatch`** – controls whether the fluent `Queue` instance should dispatch automatically when destructed (default: `false`).
 - **`auto_dispatch_on_queue_flow_helper`** – controls the default behavior for the `qflow()` helper when `autoDispatch` is not passed explicitly (default: `true`).
+- **`dispatch_return_of_multiple_jobs_as_collection`** – controls whether the dispatch method should return a collection of PendingDispatch objects when multiple jobs are dispatched (default: `true`).
 
 ## How It Works
 
@@ -347,19 +353,6 @@ QueueFlow Queue abstracts Laravel's queue system by:
 2. **Applying configurations** through a fluent interface
 3. **Dispatching jobs** using Laravel's native queue system
 4. **Managing state** through service classes
-
-### Architecture
-
-```
-Queue (Main Interface)
-    ├── QueueConfigurationService (Manages configuration state)
-    ├── JobDispatcherService (Handles job creation and dispatch)
-    └── Jobs/
-        ├── QueueFlowJob (Base job class)
-        ├── UniqueQueueFlowJob (Implements ShouldBeUnique)
-        ├── UniqueUntilProcessingQueueFlowJob (Implements ShouldBeUniqueUntilProcessing)
-        └── EncryptedQueueFlowJob (Implements ShouldBeEncrypted)
-```
 
 ## Testing
 
@@ -397,16 +390,6 @@ composer test-coverage
    - Error handling
 
 2. **Helper Function**
-   ```php
-   // With auto-dispatch (default)
-   qflow(fn() => doSomething());
-   
-   // With method chaining (autoDispatch: false)
-   qflow(fn() => doSomething(), autoDispatch: false)
-       ->delay(60)
-       ->onQueue('high')
-       ->dispatch();
-   ```
 
 3. **Database Integration**
    - Transaction handling
