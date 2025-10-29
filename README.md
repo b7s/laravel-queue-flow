@@ -15,6 +15,7 @@ A [Laravel Queue](https://laravel.com/docs/12.x/queues) wrapper system, simplify
 - 🔄 **Unique Jobs**: Prevent duplicate job execution
 - ⚡ **Rate Limiting**: Control job execution rate
 - 🎨 **Flexible**: Support for delays, connections, and queues
+- 🧪 **Tests**: Pest tests included
 
 ## Requirements
 
@@ -41,57 +42,41 @@ This package has some configurations, but it doesn't override the default Larave
 
 ## Usage
 
-### Basic Usage (using global helper function)
+### Basic Usage
+
+Using global helper function `qflow`:
 
 ```php
 <?php
 
-use B7s\QueueFlow\Queue;
+// Dispatch automatically One item
+qflow(fn () => $this->doOtherThing());
 
-class TestQueueController
-{
-    public function doSomething(): void
-    {
-        // Dispatch automatically One item
-        qflow(fn () => $this->doOtherThing());
+// Dispatch automatically multiple items with array of closures
+qflow([
+    fn () => $this->doOtherThing(),
+    fn () => $this->doMoreThings(),
+    // ...
+]);
 
-        // Dispatch automatically multiple items with array of closures
-        qflow([
-            fn () => $this->doOtherThing(),
-            fn () => $this->doMoreThings(),
-            // ...
-        ]);
-
-        // Dispatch manually (set autoDispatch to false) after configuration
-        qflow(fn () => $this->doOtherThing(), autoDispatch: false)
-            ->onQueue('high-priority')
-            ->shouldBeUnique()
-            ->shouldBeEncrypted()
-            ->rateLimited('default')
-            ->onFailure(function () {
-                // Your logic here
-            })
-            ->dispatch();
-
-        // Dispatch multiple items with array of closures and apply middleware to each dispatch
-        qflow([
-           fn () => $this->callExternalApi(),
-           fn () => $this->callExternalApi(),
-        ])
-        // Apply middleware to each dispatch
-        ->each(fn ($dispatch) => $dispatch->through([new \Illuminate\Queue\Middleware\RateLimited('api-calls')]));
-    }
-
-    private function doOtherThing(): void
-    {
+// Dispatch manually (set autoDispatch to false) after configuration
+qflow(fn () => $this->doOtherThing(), autoDispatch: false)
+    ->onQueue('high-priority')
+    ->shouldBeUnique()
+    ->shouldBeEncrypted()
+    ->rateLimited('default')
+    ->onFailure(function () {
         // Your logic here
-    }
+    })
+    ->dispatch();
 
-    private function doMoreThings(): void
-    {
-        // Your logic here
-    }
-}
+// Dispatch multiple items with array of closures and apply middleware to each dispatch
+qflow([
+    fn () => $this->callExternalApi(),
+    fn () => $this->callExternalApi(),
+])
+// Apply middleware to each dispatch (return a Collection of PendingDispatch objects)
+->each(fn ($dispatch) => $dispatch->through([new \Illuminate\Queue\Middleware\RateLimited('api-calls')]));
 ```
 
 ### Auto-dispatch on Destruction
@@ -182,15 +167,14 @@ Use the global `qflow()` helper to configure jobs inline.
 qflow(fn () => $this->sendEmail());
 ```
 
-Disable auto-dispatch when you need more control:
+Disable auto-dispatch when you need more control (set the second parameter - `autoDispatch` - to `false`):
 
 ```php
-$queue = qflow(fn () => $this->sendEmail(), autoDispatch: false);
-
-// Configure other options before dispatching manually
-$queue
+qflow(fn () => $this->sendEmail(), autoDispatch: false);
+    // Configure other options before dispatching manually
     ->onQueue('emails')
     ->shouldBeUnique()
+    // then, dispatch
     ->dispatch();
 ```
 
