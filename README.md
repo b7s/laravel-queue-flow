@@ -47,8 +47,6 @@ This package has some configurations, but it doesn't override the default Larave
 Using global helper function `qflow`:
 
 ```php
-<?php
-
 // Dispatch automatically One item
 qflow(fn () => $this->doOtherThing());
 
@@ -70,12 +68,13 @@ qflow(fn () => $this->doOtherThing(), autoDispatch: false)
     })
     ->dispatch();
 
-// Dispatch multiple items with array of closures and apply middleware to each dispatch
+// Dispatch multiple items with returns a Collection of PendingDispatch objects,
+// then, apply middleware to each dispatch
 qflow([
     fn () => $this->callExternalApi(),
     fn () => $this->callExternalApi(),
 ])
-// Apply middleware to each dispatch (return a Collection of PendingDispatch objects)
+// Apply middleware to each dispatch
 ->each(fn ($dispatch) => $dispatch->through([new \Illuminate\Queue\Middleware\RateLimited('api-calls')]));
 ```
 
@@ -161,7 +160,7 @@ Use the global `qflow()` helper to configure jobs inline.
 
 > Jobs dispatch automatically by default
 > 
-> You can change this behavior in the config file `auto_dispatch_on_queue_flow_helper` or by setting the .env variable `QUEUE_FLOW_AUTO_DISPATCH_ON_HELPER` to `false`:
+> You can change this behavior changing the config `auto_dispatch_on_queue_flow_helper` or by setting the .env variable `QUEUE_FLOW_AUTO_DISPATCH_ON_HELPER` to `false`:
 
 ```php
 qflow(fn () => $this->sendEmail());
